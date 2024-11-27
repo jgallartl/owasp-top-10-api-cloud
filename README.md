@@ -1,1 +1,1 @@
-# owasp-top-10-azure
+# owasp-top-10-api-cloud
