@@ -1,0 +1,15 @@
+#cloud-config
+package_update: true
+packages:
+  - docker.io
+  - docker-compose
+
+runcmd:
+  - sudo systemctl start docker
+  - sudo systemctl enable docker
+  - curl -o docker-compose.yml https://raw.githubusercontent.com/OWASP/crAPI/main/deploy/docker/docker-compose.yml
+  - sed -i s/'LISTEN_IP:-127.0.0.1}:8888'/'LISTEN_IP:-0.0.0.0}:8888'/g docker-compose.yml
+  - sed -i s/'LISTEN_IP:-127.0.0.1}:8443'/'LISTEN_IP:-0.0.0.0}:8443'/g docker-compose.yml
+  - sed -i s/'LISTEN_IP:-127.0.0.1}:8025'/'LISTEN_IP:-0.0.0.0}:8025'/g docker-compose.yml
+  - sudo docker-compose pull
+  - sudo docker-compose -f docker-compose.yml up -d
