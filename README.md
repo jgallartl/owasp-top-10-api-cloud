@@ -20,8 +20,9 @@ Note: Preconfigured options have been used in WAF instances:
 * Terraform
 
 ## Account Requirements
-* You need an Azure free account with a small credit to run Azure scenarios
-* You need an AWS free account with a small credit to run AWS scenarios
+You need to install and configure Azure and AWS CLI and:
+* An Azure free account with a small credit to run Azure scenarios
+* An AWS free account with a small credit to run AWS scenarios
 
 ## How to run
 
@@ -53,6 +54,13 @@ Navigate to the test directory and run the tests using the DNS name obtained in 
 ```
 python crapi_test.py --ip <DNS name displayed in the previous step>
 ```
+
+### 6. Clean up resources
+Once you have finished avoid unnecesary costs destroying the created environment
+```
+terraform destroy
+```
+
 
 ## License
 
