@@ -24,6 +24,14 @@ You need to install and configure Azure and AWS CLI and:
 * An Azure free account with a small credit to run Azure scenarios
 * An AWS free account with a small credit to run AWS scenarios
 
+## Other
+Create an SSH key to access VMs for troubleshooting
+```
+ssh-keygen -f  ~/.ssh/id_rsa_crapi
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa_crapi
+```
+
 ## How to run
 
 ### 1. Clone the Repository
