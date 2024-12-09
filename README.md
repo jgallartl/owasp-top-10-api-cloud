@@ -1,62 +1,62 @@
-# owasp-top-10-api-azure
+# OWASP Top 10 API Cloud
 
-ssh-keygen -f  ~/.ssh/id_rsa_crapi
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_rsa_crapi
+This project aims to evaluate the effectiveness of default security mechanisms, specifically Web Application Firewalls (WAF), in Azure and AWS for protecting against Web API vulnerabilities. It utilizes the crAPI (Completely Ridiculous API) from OWASP to reproduce and test the 15 challenges proposed by the OWASP. [OWASP Top 10 API crAPI challenges](https://owasp.org/www-project-crAPI/)
 
-https://zerodayhacker.com/crapi-walkthrough-using-ai/
+# Environments
 
-https://github.com/Azure/terraform/blob/master/quickstart/101-application-gateway/main.tf
+The environments aim to reproduce some basic lift-and-shit scenarios:
+* AWS with an EC2 instance and an Application Security Group
+* AWS with an EC2 instance protected by an API Gateway with a WAF
+* Azure with a VM instance with a Network Security Group
+* Azure with a VM instance protected by an Application Gateway and a WAF
 
-
-sudo cat /var/log/cloud-init-output.log
-
-https://danaepp.com/writing-api-exploits-in-python
-
-
-Integration of Azure API Management with Application Gateway
-API Gateway: Azure Application Gateway acts as a Layer-7 load balancer and a Web Application Firewall (WAF). It receives incoming HTTP requests and routes them to the appropriate backend services2.
-
-Security: The WAF component of Application Gateway provides protection against common web vulnerabilities and attacks. It can filter and monitor HTTP requests before they reach your backend services2.
-
-Routing: Application Gateway can be configured with URL-based routing rules to direct traffic to different backend pools based on the URL path. For example, you can route requests to APIM for API management and to other services for different types of traffic2.
-
-API Management: Azure API Management provides a comprehensive API gateway, management platform, and developer portal. It manages API requests, enforces policies, transforms requests and responses, and provides analytics and monitoring3.
-
-Example Workflow
-Incoming Request: A client sends an HTTP request to the Application Gateway.
-
-WAF Filtering: The Application Gateway WAF checks the request against its rules.
-
-Routing: If the request is valid, Application Gateway routes it to the appropriate backend pool based on the URL path.
-
-API Management: The request is forwarded to Azure API Management, which applies additional policies, transforms the request, and routes it to the backend service3.
-
-Backend Response: The backend service processes the request and sends a response back through API Management and Application Gateway to the client.
-
-Benefits
-Enhanced Security: Combining APIM with Application Gateway provides multiple layers of security, protecting your APIs from various threats.
-
-Scalability: Application Gateway can handle high traffic loads and distribute requests efficiently.
-
-Centralized Management: APIM provides a single point of management for all your APIs, simplifying administration and monitoring.
-
-Would you like more detailed steps on setting this up, or do you have any specific questions about the integration?
-
-terraform graph -type=plan | dot -Tpng >graph.png
-
-Otro: https://adile1coder.medium.com/performing-security-testing-with-owasp-zap-api-and-python-b37fb59a19fa
-
-docker rm -vf $(docker ps -aq)
-docker rmi -f $(docker images -aq)
+Note: Preconfigured options have been used in WAF instances:
+- Pre-defined available Managed Rules for AWS WAF
+- OWASP 3.2 web configuration for Azure WAF
 
 
+## Software Requirements
+* Python 3.12
+* Terraform
 
-docker-compose stop
-docker rm -vf $(docker ps -aq)
-docker rmi -f $(docker images -aq)
-docker volume rm $(docker volume ls -q)
-docker-compose pull
-docker-compose -f docker-compose.yml --compatibility up -d
+# Account Requirements
+* You need an Azure free account with a small credit to run Azure scenarios
+* You need an AWS free account with a small credit to run AWS scenarios
 
-https://github.com/arainho/awesome-api-security
+# How to run
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/jgallartl/owasp-top-10-api-cloud.git
+cd owasp-top-10-api-cloud
+```
+
+### 2. Change Directory to the Environment You Want to Test
+Navigate to the directory containing the Terraform configuration files.
+
+### 3. Deploy the Environment
+Initialize Terraform, plan the deployment, and apply the plan:
+```
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+```
+
+### 4. Refresh the Output
+Once the deployment is finished, refresh the output to get the DNS name of the instance. You might need to wait a couple of minutes for the web to be available:
+```
+terraform refresh
+```
+
+### 5. Run the Tests
+Navigate to the test directory and run the tests using the DNS name obtained in the previous step:
+```
+python crapi_test.py --ip <DNS name displayed in the previous step>
+```
+
+
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
