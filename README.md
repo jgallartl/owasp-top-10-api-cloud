@@ -1,6 +1,6 @@
 # OWASP Top 10 API Cloud
 
-This project aims to evaluate the effectiveness of default security mechanisms, specifically Web Application Firewalls (WAF), in Azure and AWS for protecting against Web API vulnerabilities. It utilizes the crAPI (Completely Ridiculous API) from OWASP to reproduce and test the 15 challenges proposed by the OWASP. [OWASP Top 10 API crAPI challenges](https://owasp.org/www-project-crAPI/)
+This project aims to evaluate the effectiveness of default security mechanisms, specifically Web Application Firewalls (WAF), in Azure and AWS for protecting against Web API vulnerabilities. It utilizes the crAPI (Completely Ridiculous API) from OWASP to reproduce and test the 15 challenges proposed by the OWASP. [OWASP Top 10 API crAPI challenges](https://github.com/OWASP/crAPI/blob/develop/docs/challenges.md)
 
 ## Environments
 
