@@ -2,7 +2,7 @@
 
 This project aims to evaluate the effectiveness of default security mechanisms, specifically Web Application Firewalls (WAF), in Azure and AWS for protecting against Web API vulnerabilities. It utilizes the crAPI (Completely Ridiculous API) from OWASP to reproduce and test the 15 challenges proposed by the OWASP. [OWASP Top 10 API crAPI challenges](https://owasp.org/www-project-crAPI/)
 
-# Environments
+## Environments
 
 The environments aim to reproduce some basic lift-and-shit scenarios:
 * AWS with an EC2 instance and an Application Security Group
@@ -19,11 +19,11 @@ Note: Preconfigured options have been used in WAF instances:
 * Python 3.12
 * Terraform
 
-# Account Requirements
+## Account Requirements
 * You need an Azure free account with a small credit to run Azure scenarios
 * You need an AWS free account with a small credit to run AWS scenarios
 
-# How to run
+## How to run
 
 ### 1. Clone the Repository
 ```bash
@@ -53,8 +53,6 @@ Navigate to the test directory and run the tests using the DNS name obtained in 
 ```
 python crapi_test.py --ip <DNS name displayed in the previous step>
 ```
-
-
 
 ## License
 
