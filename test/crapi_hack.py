@@ -271,10 +271,10 @@ def delete_video(token, video_id) -> requests.Response:
         "Content-Type": "application/json",
         "User-Agent": get_mock_user_agent_name()
     }
-    data = {
-        "videoName": "SampleVideo_1280x720_1mb.mp4"
-    }
-    response = requests.delete(url, headers=headers, data=data)
+    # data = {
+    #     "videoName": "SampleVideo_1280x720_1mb.mp4"
+    # }
+    response = requests.delete(url, headers=headers)
     if response.status_code != 200:
         logging.error(f"Failed to delete video with id {video_id}: {
             response.status_code} - {response.text}")
