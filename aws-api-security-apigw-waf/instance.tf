@@ -26,7 +26,7 @@ resource "aws_instance" "vm" {
     Name = "crapi-vm"
   }
 
-  depends_on = [aws_network_interface.eni] 
+  depends_on = [aws_network_interface.eni]
 }
 
 resource "aws_eip" "eip" {

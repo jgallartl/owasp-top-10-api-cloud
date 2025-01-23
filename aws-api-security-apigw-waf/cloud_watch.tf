@@ -26,7 +26,7 @@ resource "aws_sns_topic" "waf_alarm_topic" {
 resource "aws_sns_topic_subscription" "waf_alarm_subscription" {
   topic_arn = aws_sns_topic.waf_alarm_topic.arn
   protocol  = "email"
-  endpoint  = "your-email@example.com"  # Replace with your email
+  endpoint  = "your-email@example.com" # Replace with your email
 }
 
 resource "aws_cloudwatch_dashboard" "waf_dashboard" {
@@ -34,20 +34,20 @@ resource "aws_cloudwatch_dashboard" "waf_dashboard" {
   dashboard_body = jsonencode({
     widgets = [
       {
-        type = "metric",
-        x = 0,
-        y = 0,
-        width = 24,
+        type   = "metric",
+        x      = 0,
+        y      = 0,
+        width  = 24,
         height = 6,
         properties = {
           metrics = [
-            [ "AWS/WAFV2", "AllowedRequests", "WebACL", aws_wafv2_web_acl.web_acl.name ],
-            [ "AWS/WAFV2", "BlockedRequests", "WebACL", aws_wafv2_web_acl.web_acl.name ]
+            ["AWS/WAFV2", "AllowedRequests", "WebACL", aws_wafv2_web_acl.web_acl.name],
+            ["AWS/WAFV2", "BlockedRequests", "WebACL", aws_wafv2_web_acl.web_acl.name]
           ],
           period = 300,
-          stat = "Sum",
+          stat   = "Sum",
           region = "eu-west-3",
-          title = "WAF Allowed and Blocked Requests"
+          title  = "WAF Allowed and Blocked Requests"
         }
       }
     ]

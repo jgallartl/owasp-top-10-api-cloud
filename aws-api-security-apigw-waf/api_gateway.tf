@@ -38,8 +38,8 @@ resource "aws_api_gateway_method" "delete_method" {
 }
 
 resource "aws_api_gateway_integration" "get_integration" {
-  rest_api_id   = aws_api_gateway_rest_api.apigw_rest_api.id
-  resource_id   = aws_api_gateway_resource.apigw_resource.id
+  rest_api_id             = aws_api_gateway_rest_api.apigw_rest_api.id
+  resource_id             = aws_api_gateway_resource.apigw_resource.id
   http_method             = aws_api_gateway_method.get_method.http_method
   integration_http_method = "GET"
   type                    = "HTTP"
@@ -48,8 +48,8 @@ resource "aws_api_gateway_integration" "get_integration" {
 }
 
 resource "aws_api_gateway_integration" "post_integration" {
-  rest_api_id   = aws_api_gateway_rest_api.apigw_rest_api.id
-  resource_id   = aws_api_gateway_resource.apigw_resource.id
+  rest_api_id             = aws_api_gateway_rest_api.apigw_rest_api.id
+  resource_id             = aws_api_gateway_resource.apigw_resource.id
   http_method             = aws_api_gateway_method.post_method.http_method
   integration_http_method = "POST"
   type                    = "HTTP"
@@ -58,8 +58,8 @@ resource "aws_api_gateway_integration" "post_integration" {
 }
 
 resource "aws_api_gateway_integration" "put_integration" {
-  rest_api_id   = aws_api_gateway_rest_api.apigw_rest_api.id
-  resource_id   = aws_api_gateway_resource.apigw_resource.id
+  rest_api_id             = aws_api_gateway_rest_api.apigw_rest_api.id
+  resource_id             = aws_api_gateway_resource.apigw_resource.id
   http_method             = aws_api_gateway_method.put_method.http_method
   integration_http_method = "PUT"
   type                    = "HTTP"
@@ -68,8 +68,8 @@ resource "aws_api_gateway_integration" "put_integration" {
 }
 
 resource "aws_api_gateway_integration" "delete_integration" {
-  rest_api_id   = aws_api_gateway_rest_api.apigw_rest_api.id
-  resource_id   = aws_api_gateway_resource.apigw_resource.id
+  rest_api_id             = aws_api_gateway_rest_api.apigw_rest_api.id
+  resource_id             = aws_api_gateway_resource.apigw_resource.id
   http_method             = aws_api_gateway_method.delete_method.http_method
   integration_http_method = "DELETE"
   type                    = "HTTP"
@@ -84,7 +84,7 @@ resource "aws_api_gateway_stage" "stage" {
 }
 
 resource "aws_api_gateway_deployment" "apigw_deployment" {
-  depends_on  = [
+  depends_on = [
     aws_api_gateway_integration.get_integration,
     aws_api_gateway_integration.post_integration,
     aws_api_gateway_integration.put_integration,
